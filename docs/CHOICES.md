@@ -39,3 +39,24 @@ This document records architecture tradeoffs as the implementation grows.
   purchase events without changing the route contract.
 - Heatmap intensity combines zone event count and dwell seconds, then normalizes against
   the strongest zone for the requested store/time window.
+
+## Module 5
+
+- The real dataset arrived before dashboard work, so the plan shifted to add a
+  dataset profile before real video processing. This keeps camera-specific knowledge
+  outside the generic funnel logic.
+- Funnel stages use identity-level deduplication to avoid double-counting re-entry.
+- The assessment framework explicitly scores `/funnel`, so this module was prioritized
+  before the visual dashboard.
+- Purchase is still a proxy because CCTV sessions and POS rows are not linked yet.
+  Billing queue joins are the best available pre-linking signal.
+
+## Module 6
+
+- Anomaly detection uses simple baseline rules instead of opaque ML because the dataset
+  is short and does not contain historical labels. This is more defensible for the
+  hiring challenge and easier to tune once more days of data arrive.
+- Dead-zone detection checks expected customer zones from the layout and observed event
+  stream. Billing queue events count as billing-zone activity.
+- Queue and conversion anomalies include suggested actions so the API returns business
+  guidance, not just raw alerts.

@@ -39,6 +39,23 @@ Module 4 includes:
 - tests for empty store, staff-only traffic, zero purchase, reentry, queue abandonment,
   and heatmap normalization
 
+Module 5 includes:
+
+- `GET /stores/{id}/funnel`
+- session funnel service and response schemas
+- dataset profile for `ST1008 / Brigade_Bangalore`
+- camera role mapping for the received CCTV files
+- tests for empty funnel, staff exclusion, reentry dedupe, drop-off, time windows,
+  and billing queue purchase proxy
+
+Module 6 includes:
+
+- `GET /stores/{id}/anomalies`
+- `QUEUE_SPIKE`, `CONVERSION_DROP`, and `DEAD_ZONE`
+- `INFO`, `WARN`, and `CRITICAL` severities
+- suggested actions for each anomaly
+- tests for empty windows, queue spikes, conversion drops, dead zones, and normal windows
+
 ## Testing
 
 Run the full suite:
@@ -51,4 +68,16 @@ Run Module 4 tests only:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests/test_metrics.py
+```
+
+Run Module 5 tests only:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/test_funnel.py tests/test_dataset_config.py
+```
+
+Run Module 6 tests only:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/test_anomalies.py
 ```

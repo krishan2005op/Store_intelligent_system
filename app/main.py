@@ -16,7 +16,7 @@ from app.core.logging import (
     configure_logging,
     get_logger,
 )
-from app.routes import health, ingest, metrics
+from app.routes import anomalies, funnel, health, ingest, metrics
 from pipeline.schemas import StructuredError
 
 
@@ -42,6 +42,8 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
     app.include_router(health.router)
     app.include_router(ingest.router)
     app.include_router(metrics.router)
+    app.include_router(funnel.router)
+    app.include_router(anomalies.router)
     return app
 
 

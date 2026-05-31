@@ -44,3 +44,35 @@ reentry count, staff filtering, and heatmap normalization.
 Customer-facing metrics exclude `STAFF` events. Unique visitors are deduplicated by
 `global_person_id` when available and fall back to `session_id`. This mirrors the
 future real pipeline where ReID may not be available for every track.
+
+## Module 5: Funnel Engine and Dataset Profile
+
+The received dataset contains five short CCTV MP4 files, a Brigade Bangalore layout
+workbook, POS order-line data, and an assessment framework. The project now includes
+a dataset profile for `ST1008 / Brigade_Bangalore` that maps camera roles:
+
+- `CAM 3`: entrance and exterior threshold
+- `CAM 1`, `CAM 2`: sales floor and browsing
+- `CAM 5`: billing/cash counter
+- `CAM 4`: back/storage/staff area
+
+The funnel engine exposes `GET /stores/{id}/funnel` and computes session progression
+through entry, browse, dwell, billing intent, and purchase proxy stages. The current
+purchase proxy is `BILLING_QUEUE_JOIN`; POS order data will later be linked by time
+window once video-derived session timestamps are calibrated.
+
+## Module 6: Anomaly Engine
+
+The anomaly engine exposes `GET /stores/{id}/anomalies` and runs explainable,
+dataset-independent baseline rules:
+
+- `QUEUE_SPIKE`: maximum billing queue depth exceeds the configured warning or
+  critical threshold.
+- `CONVERSION_DROP`: conversion proxy falls below baseline after a minimum visitor
+  count is reached.
+- `DEAD_ZONE`: expected customer-facing zones show no observed customer activity
+  once there is enough event volume to evaluate the window.
+
+Every finding includes severity, observed and threshold values, optional `zone_id`,
+metadata, and a suggested operational action. This is intentionally transparent so
+reviewers can inspect and challenge assumptions during architecture discussion.

@@ -1,0 +1,72 @@
+[
+  {
+    "file": "C:\\Users\\hp\\Downloads\\CCTV Footage-20260529T160731Z-3-00144614ea\\CCTV Footage\\CAM 1.mp4",
+    "opened": true,
+    "fps": 29.97002997002997,
+    "frame_count": 4193,
+    "width": 1920,
+    "height": 1080,
+    "duration_seconds": 139.90643333333333,
+    "sample_frames": [
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_1_10.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_1_50.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_1_90.jpg"
+    ]
+  },
+  {
+    "file": "C:\\Users\\hp\\Downloads\\CCTV Footage-20260529T160731Z-3-00144614ea\\CCTV Footage\\CAM 2.mp4",
+    "opened": true,
+    "fps": 29.97002997002997,
+    "frame_count": 3774,
+    "width": 1920,
+    "height": 1080,
+    "duration_seconds": 125.9258,
+    "sample_frames": [
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_2_10.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_2_50.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_2_90.jpg"
+    ]
+  },
+  {
+    "file": "C:\\Users\\hp\\Downloads\\CCTV Footage-20260529T160731Z-3-00144614ea\\CCTV Footage\\CAM 3.mp4",
+    "opened": true,
+    "fps": 29.97002997002997,
+    "frame_count": 4436,
+    "width": 1920,
+    "height": 1080,
+    "duration_seconds": 148.01453333333333,
+    "sample_frames": [
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_3_10.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_3_50.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_3_90.jpg"
+    ]
+  },
+  {
+    "file": "C:\\Users\\hp\\Downloads\\CCTV Footage-20260529T160731Z-3-00144614ea\\CCTV Footage\\CAM 4.mp4",
+    "opened": true,
+    "fps": 24.98150532920514,
+    "frame_count": 3647,
+    "width": 1920,
+    "height": 1080,
+    "duration_seconds": 145.988,
+    "sample_frames": [
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_4_10.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_4_50.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_4_90.jpg"
+    ]
+  },
+  {
+    "file": "C:\\Users\\hp\\Downloads\\CCTV Footage-20260529T160731Z-3-00144614ea\\CCTV Footage\\CAM 5.mp4",
+    "opened": true,
+    "fps": 24.98143515280852,
+    "frame_count": 3465,
+    "width": 1920,
+    "height": 1080,
+    "duration_seconds": 138.703,
+    "sample_frames": [
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_5_10.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_5_50.jpg",
+      "D:\\project\\Store_intelligence_system\\artifacts\\dataset_probe\\cam_5_90.jpg"
+    ]
+  }
+]
