@@ -60,3 +60,14 @@ This document records architecture tradeoffs as the implementation grows.
   stream. Billing queue events count as billing-zone activity.
 - Queue and conversion anomalies include suggested actions so the API returns business
   guidance, not just raw alerts.
+
+## Module 7
+
+- The first real-video path uses OpenCV motion detection as a CPU-compatible fallback.
+  This is less accurate than YOLO, but it proves the system performs real computation
+  over the provided MP4s and produces non-hardcoded structured events.
+- YOLO remains available through the detector factory; installing `ultralytics` and
+  setting `DETECTOR_BACKEND=yolov8` upgrades the detector without changing downstream
+  services.
+- Events are written as JSONL first. API ingestion from JSONL is the next integration
+  step, and keeps pipeline debugging separate from database availability.

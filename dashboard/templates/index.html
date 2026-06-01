@@ -1,2 +1,214 @@
-<!-- Dashboard template will be implemented in the dashboard module. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Intelligence Platform</title>
+    <!-- Outfit Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">AURA Intel</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <label for="store-selector" class="section-label">SELECT STORE</label>
+                <div class="select-wrapper">
+                    <select id="store-selector">
+                        <option value="00000000-0000-4000-8000-000000001008" selected>ST1008 - Brigade (Bangalore)</option>
+                        <option value="00000000-0000-4000-8000-000000000001">ST0001 - Simulation Store</option>
+                    </select>
+                </div>
+            </div>
 
+            <div class="sidebar-section">
+                <label class="section-label">PIPELINE STATUS</label>
+                <div class="status-panel">
+                    <div class="status-item">
+                        <span class="status-label">Engine Connection</span>
+                        <span id="ws-status" class="badge badge-disconnected">Connecting</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Database Connection</span>
+                        <span id="db-status" class="badge badge-unknown">Checking</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Data Freshness</span>
+                        <span id="freshness-status" class="badge badge-unknown">Checking</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button id="refresh-btn" class="btn btn-primary">Refresh Dashboard</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 id="store-name">Brigade, Bangalore</h1>
+                    <p class="store-metadata" id="store-subtext">CCTV Analytics Live Stream</p>
+                </div>
+                <div class="header-right">
+                    <div class="time-container">
+                        <span id="current-time">10-04-2026</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Metrics / KPI Grid -->
+            <section class="kpi-grid">
+                <!-- Unique Visitors -->
+                <div class="kpi-card glass">
+                    <div class="kpi-icon icon-visitors">👤</div>
+                    <div class="kpi-details">
+                        <span class="kpi-title">Unique Visitors</span>
+                        <h2 id="kpi-visitors">0</h2>
+                        <span class="kpi-meta" id="kpi-reentries">0 re-entries</span>
+                    </div>
+                </div>
+
+                <!-- Active Sessions -->
+                <div class="kpi-card glass">
+                    <div class="kpi-icon icon-active">🟢</div>
+                    <div class="kpi-details">
+                        <span class="kpi-title">Active Shoppers</span>
+                        <h2 id="kpi-active">0</h2>
+                        <span class="kpi-meta">inside camera views</span>
+                    </div>
+                </div>
+
+                <!-- Conversion Rate -->
+                <div class="kpi-card glass">
+                    <div class="kpi-icon icon-conversion">🛒</div>
+                    <div class="kpi-details">
+                        <span class="kpi-title">Conversion Rate</span>
+                        <h2 id="kpi-conversion">0.00%</h2>
+                        <span class="kpi-meta" id="kpi-purchases">0 purchases</span>
+                    </div>
+                </div>
+
+                <!-- Average Dwell Time -->
+                <div class="kpi-card glass">
+                    <div class="kpi-icon icon-dwell">⏱️</div>
+                    <div class="kpi-details">
+                        <span class="kpi-title">Avg Dwell Time</span>
+                        <h2 id="kpi-dwell">0s</h2>
+                        <span class="kpi-meta">spent on floor</span>
+                    </div>
+                </div>
+
+                <!-- Billing Queue Depth -->
+                <div class="kpi-card glass">
+                    <div class="kpi-icon icon-queue">👥</div>
+                    <div class="kpi-details">
+                        <span class="kpi-title">Billing Queue Depth</span>
+                        <h2 id="kpi-queue">0 / 0</h2>
+                        <span class="kpi-meta" id="kpi-abandon-rate">0% abandon rate</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Middle Section: Funnel & Heatmap -->
+            <section class="dashboard-middle">
+                <!-- Funnel Visualizer -->
+                <div class="panel glass funnel-panel">
+                    <div class="panel-header">
+                        <h3>Shopper Funnel</h3>
+                        <p class="panel-subtitle">Stage-by-stage session dropoffs</p>
+                    </div>
+                    <div class="panel-body">
+                        <div class="funnel-container">
+                            <canvas id="funnel-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heatmap Display -->
+                <div class="panel glass heatmap-panel">
+                    <div class="panel-header">
+                        <h3>Sales Floor Heatmap</h3>
+                        <p class="panel-subtitle">Customer density and dwell by zones</p>
+                    </div>
+                    <div class="panel-body">
+                        <div class="heatmap-grid-container">
+                            <div class="heatmap-grid" id="heatmap-grid">
+                                <!-- Generated Dynamically -->
+                            </div>
+                        </div>
+                        <div class="heatmap-legend">
+                            <span>Low Density</span>
+                            <div class="legend-gradient"></div>
+                            <span>High Density</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bottom Section: Anomalies & Live Feed -->
+            <section class="dashboard-bottom">
+                <!-- Anomaly Alert Feed -->
+                <div class="panel glass anomalies-panel">
+                    <div class="panel-header">
+                        <h3>Operational Anomalies</h3>
+                        <span id="anomaly-badge-count" class="counter-badge counter-zero">0 Alerts</span>
+                    </div>
+                    <div class="panel-body scroll-y" id="anomalies-list">
+                        <div class="empty-state">
+                            <p>No operational anomalies detected in this time window.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-time Event Feed -->
+                <div class="panel glass stream-panel">
+                    <div class="panel-header">
+                        <h3>Live Event Feed</h3>
+                        <div class="pulse-container">
+                            <span class="pulse-indicator"></span>
+                            <span class="pulse-text">STREAMING</span>
+                        </div>
+                    </div>
+                    <div class="panel-body scroll-y">
+                        <table class="event-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Camera</th>
+                                    <th>Event Type</th>
+                                    <th>Zone</th>
+                                    <th>Subject</th>
+                                    <th>Conf</th>
+                                </tr>
+                            </thead>
+                            <tbody id="event-feed-rows">
+                                <tr class="empty-feed">
+                                    <td colspan="6">Waiting for camera feed events...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom Script -->
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

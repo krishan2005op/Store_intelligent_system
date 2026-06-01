@@ -76,3 +76,21 @@ dataset-independent baseline rules:
 Every finding includes severity, observed and threshold values, optional `zone_id`,
 metadata, and a suggested operational action. This is intentionally transparent so
 reviewers can inspect and challenge assumptions during architecture discussion.
+
+## Module 7: Real CCTV Pipeline MVP
+
+The project now has a real-video execution path for the received Brigade Bangalore
+CCTV files. `OpenCVVideoSource` reads MP4 metadata and sampled frames. The detector
+factory uses YOLOv8 when configured, while the default local path uses a CPU-safe
+OpenCV motion detector so the system can run before model weights are installed.
+
+Camera roles from the dataset profile are mapped into structured retail events:
+
+- entrance camera detections become `ENTRY`
+- sales-floor detections become `ZONE_DWELL`
+- billing camera detections become `BILLING_QUEUE_JOIN`
+- back-area detections become staff `ZONE_ENTER`
+
+The MVP writes a JSONL event stream that uses the same `RetailEvent` schema as the
+API. This keeps real-video event generation compatible with ingestion, metrics,
+funnel, anomaly, and dashboard modules.

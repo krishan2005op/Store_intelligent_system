@@ -45,6 +45,16 @@ class IngestionService:
 
         await self.repository.add_events(accepted_events)
 
+        if accepted_events:
+            import asyncio
+            from app.services.websocket_service import manager
+            from collections import defaultdict
+            events_by_store = defaultdict(list)
+            for event in accepted_events:
+                events_by_store[event.store_id].append(event)
+            for s_id, store_events in events_by_store.items():
+                asyncio.create_task(manager.broadcast_events(s_id, store_events))
+
         unique_results_by_event_id: dict[UUID, EventIngestResult] = {}
         for event in unique_candidates:
             if event.event_id in existing_ids:

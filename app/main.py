@@ -16,7 +16,7 @@ from app.core.logging import (
     configure_logging,
     get_logger,
 )
-from app.routes import anomalies, funnel, health, ingest, metrics
+from app.routes import anomalies, dashboard, funnel, health, ingest, metrics
 from pipeline.schemas import StructuredError
 
 
@@ -44,6 +44,11 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
     app.include_router(metrics.router)
     app.include_router(funnel.router)
     app.include_router(anomalies.router)
+    app.include_router(dashboard.router)
+
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/static", StaticFiles(directory="dashboard/static"), name="static")
+
     return app
 
 

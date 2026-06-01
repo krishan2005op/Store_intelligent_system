@@ -1,0 +1,6 @@
+-r requirements.txt
+opencv-python>=4.9.0.80
+torch>=2.6.0
+torchvision>=0.22.0
+torchreid==0.2.5
+ultralytics>=8.2.0

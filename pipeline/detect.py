@@ -50,6 +50,66 @@ class MockDetector:
         ]
 
 
+class OpenCVMotionPersonDetector:
+    name = "opencv-motion-person-detector"
+
+    def __init__(
+        self,
+        min_area: float = 1_800.0,
+        min_confidence: float = 0.35,
+    ) -> None:
+        self._min_area = min_area
+        self._min_confidence = min_confidence
+        self._subtractors: dict[str, Any] = {}
+
+    async def detect(self, frame: VideoFrame) -> list[Detection]:
+        if frame.image is None:
+            return []
+
+        import cv2
+
+        subtractor = self._subtractors.setdefault(
+            frame.camera_id,
+            cv2.createBackgroundSubtractorMOG2(
+                history=120,
+                varThreshold=32,
+                detectShadows=True,
+            ),
+        )
+        mask = subtractor.apply(frame.image)
+        _, thresholded = cv2.threshold(mask, 200, 255, cv2.THRESH_BINARY)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        cleaned = cv2.morphologyEx(thresholded, cv2.MORPH_OPEN, kernel)
+        cleaned = cv2.dilate(cleaned, kernel, iterations=2)
+        contours, _ = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        detections: list[Detection] = []
+        for index, contour in enumerate(contours):
+            area = float(cv2.contourArea(contour))
+            if area < self._min_area:
+                continue
+            x, y, width, height = cv2.boundingRect(contour)
+            aspect_ratio = height / max(width, 1)
+            if aspect_ratio < 0.8:
+                continue
+            confidence = min(0.95, max(self._min_confidence, area / 18_000.0))
+            detections.append(
+                Detection(
+                    detection_id=f"{frame.camera_id}-{frame.frame_id}-motion-{index}",
+                    class_name="person",
+                    confidence=confidence,
+                    bbox=BoundingBox(
+                        x=float(x),
+                        y=float(y),
+                        width=float(width),
+                        height=float(height),
+                    ),
+                )
+            )
+
+        return sorted(detections, key=lambda detection: detection.bbox.x)
+
+
 class YOLODetector:
     name = "yolov8-detector"
 
