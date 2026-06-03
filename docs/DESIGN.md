@@ -45,16 +45,22 @@ Customer-facing metrics exclude `STAFF` events. Unique visitors are deduplicated
 `global_person_id` when available and fall back to `session_id`. This mirrors the
 future real pipeline where ReID may not be available for every track.
 
-## Module 5: Funnel Engine and Dataset Profile
+## Module 5: Funnel Engine and Dataset Profiles
 
-The received dataset contains five short CCTV MP4 files, a Brigade Bangalore layout
-workbook, POS order-line data, and an assessment framework. The project now includes
-a dataset profile for `ST1008 / Brigade_Bangalore` that maps camera roles:
+The final dataset is modeled as two store profiles so camera filenames, store IDs,
+and downstream analytics stay explicit instead of being hardcoded in the pipeline:
 
-- `CAM 3`: entrance and exterior threshold
-- `CAM 1`, `CAM 2`: sales floor and browsing
-- `CAM 5`: billing/cash counter
-- `CAM 4`: back/storage/staff area
+- `ST1008 / Store 1`: `CAM 1 - zone.mp4`, `CAM 2 - zone.mp4`,
+  `CAM 3 - entry.mp4`, and `CAM 5 - billing.mp4`; this profile is also where the
+  POS sample CSV is associated.
+- `ST1076 / Store 2`: `entry 1.mp4`, `entry 2.mp4`, `zone.mp4`, and
+  `billing_area.mp4`; this profile is also where the provided sample JSONL events
+  are associated.
+
+The JSONL loader supports both native `RetailEvent` JSONL and the assessment sample
+schema. External sample events are normalized into strict platform events with
+canonical UUID store IDs, timezone-aware timestamps, deterministic event IDs,
+session IDs, queue metadata, and source `BATCH_REPLAY`.
 
 The funnel engine exposes `GET /stores/{id}/funnel` and computes session progression
 through entry, browse, dwell, billing intent, and purchase proxy stages. The current
@@ -79,8 +85,8 @@ reviewers can inspect and challenge assumptions during architecture discussion.
 
 ## Module 7: Real CCTV Pipeline MVP
 
-The project now has a real-video execution path for the received Brigade Bangalore
-CCTV files. `OpenCVVideoSource` reads MP4 metadata and sampled frames. The detector
+The project now has a real-video execution path for both received CCTV store folders.
+`OpenCVVideoSource` reads MP4 metadata and sampled frames. The detector
 factory uses YOLOv8 when configured, while the default local path uses a CPU-safe
 OpenCV motion detector so the system can run before model weights are installed.
 
@@ -89,8 +95,6 @@ Camera roles from the dataset profile are mapped into structured retail events:
 - entrance camera detections become `ENTRY`
 - sales-floor detections become `ZONE_DWELL`
 - billing camera detections become `BILLING_QUEUE_JOIN`
-- back-area detections become staff `ZONE_ENTER`
-
 The MVP writes a JSONL event stream that uses the same `RetailEvent` schema as the
 API. This keeps real-video event generation compatible with ingestion, metrics,
 funnel, anomaly, and dashboard modules.

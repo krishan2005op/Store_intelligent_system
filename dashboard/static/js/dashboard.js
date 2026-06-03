@@ -7,14 +7,29 @@ const state = {
     pollingInterval: null,
     isWsConnected: false,
     knownStoreNames: {
-        "00000000-0000-4000-8000-000000001008": { name: "Brigade, Bangalore", subtext: "Store ST1008 • Active CCTV Cameras" },
-        "00000000-0000-4000-8000-000000000001": { name: "AURA simulation", subtext: "Store ST0001 • Deterministic Event Replay" }
+        "00000000-0000-4000-8000-000000001008": {
+            name: "Store 1",
+            subtext: "ST1008 - zone, entry, billing camera intelligence",
+            cameras: ["CAM 3 Entry", "CAM 1 Zone", "CAM 2 Zone", "CAM 5 Billing"]
+        },
+        "00000000-0000-4000-8000-000000001076": {
+            name: "Store 2",
+            subtext: "ST1076 - sample JSONL plus live CCTV camera intelligence",
+            cameras: ["Entry 1", "Entry 2", "Zone", "Billing Area"]
+        },
+        "00000000-0000-4000-8000-000000000001": {
+            name: "AURA Simulation",
+            subtext: "ST0001 - deterministic event replay",
+            cameras: ["Sim Entry", "Sim Zone", "Sim Billing"]
+        }
     }
 };
 
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', () => {
     state.storeId = document.getElementById('store-selector').value;
+    updateStoreHeader();
+    renderCameraTopology();
     
     // Set up Chart.js for Funnel
     initFunnelChart();
@@ -40,15 +55,18 @@ function updateClock() {
 // Handle Store Dropdown Change
 function handleStoreChange(e) {
     state.storeId = e.target.value;
-    
-    // Update store header text
-    const details = state.knownStoreNames[state.storeId] || { name: "Custom Store", subtext: "CCTV Analytics Feed" };
-    document.getElementById('store-name').textContent = details.name;
-    document.getElementById('store-subtext').textContent = details.subtext;
+    updateStoreHeader();
+    renderCameraTopology();
 
     // Reset components & refresh
     document.getElementById('event-feed-rows').innerHTML = '<tr class="empty-feed"><td colspan="6">Waiting for camera feed events...</td></tr>';
     refreshDashboard();
+}
+
+function updateStoreHeader() {
+    const details = state.knownStoreNames[state.storeId] || { name: "Custom Store", subtext: "CCTV Analytics Feed" };
+    document.getElementById('store-name').textContent = details.name;
+    document.getElementById('store-subtext').textContent = details.subtext;
 }
 
 // Full Dashboard Refresh
@@ -75,13 +93,13 @@ function initFunnelChart() {
                 label: 'Unique Shoppers',
                 data: [0, 0, 0, 0, 0],
                 backgroundColor: [
-                    'rgba(139, 92, 246, 0.75)',
-                    'rgba(139, 92, 246, 0.60)',
-                    'rgba(139, 92, 246, 0.45)',
-                    'rgba(139, 92, 246, 0.30)',
-                    'rgba(139, 92, 246, 0.15)'
+                    'rgba(6, 182, 212, 0.78)',
+                    'rgba(16, 185, 129, 0.70)',
+                    'rgba(245, 158, 11, 0.66)',
+                    'rgba(249, 115, 22, 0.62)',
+                    'rgba(239, 68, 68, 0.58)'
                 ],
-                borderColor: 'rgba(139, 92, 246, 0.85)',
+                borderColor: 'rgba(103, 232, 249, 0.75)',
                 borderWidth: 1.5,
                 borderRadius: 6,
                 barPercentage: 0.6
@@ -238,7 +256,7 @@ async function fetchAnomalies() {
                     <span class="severity-indicator ${severityClass}">${anomaly.severity}</span>
                 </div>
                 <p class="anomaly-desc">${anomaly.description}</p>
-                <div class="anomaly-action">💡 Suggestion: ${anomaly.suggested_action}</div>
+                <div class="anomaly-action">Suggested action: ${anomaly.suggested_action}</div>
             `;
             container.appendChild(card);
         });
@@ -363,7 +381,7 @@ function appendEventsToFeed(events) {
         row.innerHTML = `
             <td><strong>${timeStr}</strong></td>
             <td><code>${event.camera_id}</code></td>
-            <td><span class="badge" style="background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6;">${event.event_type}</span></td>
+            <td><span class="event-type-badge">${event.event_type}</span></td>
             <td>${event.zone_id ? event.zone_id : '<span style="color: #64748b;">-</span>'}</td>
             <td>${event.global_person_id ? event.global_person_id : 'anonymous'} (${event.person_type})</td>
             <td>${(event.confidence * 100).toFixed(0)}%</td>
@@ -377,4 +395,24 @@ function appendEventsToFeed(events) {
     while (feedBody.children.length > 20) {
         feedBody.removeChild(feedBody.lastChild);
     }
+}
+
+function renderCameraTopology() {
+    const topology = document.getElementById('camera-topology');
+    if (!topology) return;
+
+    const fallbackStoreId = "00000000-0000-4000-8000-000000001008";
+    const details = state.knownStoreNames[state.storeId] || state.knownStoreNames[fallbackStoreId];
+    const cameras = details.cameras || [];
+
+    topology.innerHTML = cameras.map((camera, index) => {
+        const cameraName = camera.toLowerCase();
+        const role = cameraName.includes('billing')
+            ? 'billing'
+            : cameraName.includes('entry')
+                ? 'entrance'
+                : 'zone';
+        const connector = index < cameras.length - 1 ? '<div class="camera-path"></div>' : '';
+        return `<div class="camera-node ${role}"><span>CAM</span>${camera}</div>${connector}`;
+    }).join('');
 }

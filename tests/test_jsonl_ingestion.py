@@ -8,8 +8,10 @@ from uuid import uuid4
 
 import pytest
 
+from app.core.dataset_config import STORE_2_PROFILE
+from pipeline.dataset_runner import load_events_from_jsonl
 from pipeline.run import _run_ingest
-from pipeline.schemas import EventType, RetailEvent
+from pipeline.schemas import EventSource, EventType, RetailEvent
 
 
 @pytest.mark.asyncio
@@ -49,6 +51,47 @@ async def test_run_ingest_via_api() -> None:
             assert url == "http://testserver/events/ingest"
             assert len(json_payload["events"]) == 1
             assert json_payload["events"][0]["camera_id"] == "cam-1"
+
+
+def test_load_external_sample_jsonl_adapts_store_2_events(tmp_path: Path) -> None:
+    jsonl_path = tmp_path / "sample_events.jsonl"
+    jsonl_path.write_text(
+        "\n".join(
+            [
+                (
+                    '{"event_type":"entry","id_token":"ID_60001","store_code":"store_1076",'
+                    '"camera_id":"cam1","event_timestamp":"2026-03-08T18:10:05.120000",'
+                    '"is_staff":false,"gender":"female","age":27,"group_id":"G1","group_size":2}'
+                ),
+                (
+                    '{"event_type":"zone_entered","track_id":101,"store_id":"ST1076",'
+                    '"camera_id":"CAM2","zone_id":"PURPLLE_MUM_1076_Z01","zone_name":"Left Shelf",'
+                    '"zone_type":"SHELF","event_time":"2026-03-08T18:10:35.120000"}'
+                ),
+                (
+                    '{"event_type":"queue_abandoned","queue_event_id":"Q1","track_id":101,'
+                    '"store_id":"ST1076","camera_id":"PURPLLE_MUM_1076_CAM6",'
+                    '"zone_id":"PURPLLE_MUM_1076_Z_BILLING_01",'
+                    '"queue_join_ts":"2026-03-08T18:12:35.120000","queue_exit_ts":"2026-03-08T18:15:35.120000",'
+                    '"wait_seconds":180,"queue_position_at_join":3,"abandoned":true}'
+                ),
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    events = load_events_from_jsonl(jsonl_path)
+
+    assert [event.event_type for event in events] == [
+        EventType.ENTRY,
+        EventType.ZONE_ENTER,
+        EventType.BILLING_QUEUE_ABANDON,
+    ]
+    assert str(events[0].store_id) == STORE_2_PROFILE.canonical_store_uuid
+    assert events[0].source == EventSource.BATCH_REPLAY
+    assert events[0].occurred_at.tzinfo is not None
+    assert events[2].metadata.queue_depth == 3
+    assert events[2].metadata.wait_seconds == 180
 
 
 @pytest.mark.asyncio

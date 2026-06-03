@@ -7,7 +7,7 @@ from pathlib import Path
 from app.core.config import get_settings
 from app.core.logging import configure_logging, get_logger
 from pipeline.config import get_simulation_seed
-from pipeline.dataset_runner import run_brigade_dataset_pipeline
+from pipeline.dataset_runner import run_dataset_pipeline
 from pipeline.emit import EventSink, InMemoryEventSink
 from pipeline.simulator import build_default_simulator
 
@@ -25,9 +25,10 @@ async def run_simulation_once(sink: EventSink | None = None) -> InMemoryEventSin
 
 async def _run_dataset(args: argparse.Namespace) -> None:
     configure_logging(get_settings())
-    result = await run_brigade_dataset_pipeline(
+    result = await run_dataset_pipeline(
         dataset_dir=Path(args.dataset_dir),
         output_path=Path(args.output),
+        profile_key=args.profile,
     )
     logger.info(
         "dataset_pipeline_completed",
@@ -96,12 +97,18 @@ def main() -> None:
 
     dataset_parser = subparsers.add_parser(
         "dataset",
-        help="Run the real-video MVP pipeline against the Brigade CCTV folder.",
+        help="Run the real-video MVP pipeline against a Store 1 or Store 2 CCTV folder.",
+    )
+    dataset_parser.add_argument(
+        "--profile",
+        default="store1",
+        choices=("store1", "store2", "st1008", "st1076"),
+        help="Dataset profile to use for camera filenames and store identity.",
     )
     dataset_parser.add_argument("--dataset-dir", required=True)
     dataset_parser.add_argument(
         "--output",
-        default="artifacts/events/brigade_events.jsonl",
+        default="artifacts/events/dataset_events.jsonl",
     )
 
     ingest_parser = subparsers.add_parser(

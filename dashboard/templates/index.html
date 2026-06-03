@@ -19,8 +19,11 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">AURA Intel</span>
+                    <span class="logo-icon" aria-hidden="true"></span>
+                    <div>
+                        <span class="logo-text">AURA Intel</span>
+                        <span class="logo-subtitle">CCTV Retail Intelligence</span>
+                    </div>
                 </div>
             </div>
             
@@ -28,7 +31,8 @@
                 <label for="store-selector" class="section-label">SELECT STORE</label>
                 <div class="select-wrapper">
                     <select id="store-selector">
-                        <option value="00000000-0000-4000-8000-000000001008" selected>ST1008 - Brigade (Bangalore)</option>
+                        <option value="00000000-0000-4000-8000-000000001008" selected>ST1008 - Store 1</option>
+                        <option value="00000000-0000-4000-8000-000000001076">ST1076 - Store 2</option>
                         <option value="00000000-0000-4000-8000-000000000001">ST0001 - Simulation Store</option>
                     </select>
                 </div>
@@ -52,6 +56,28 @@
                 </div>
             </div>
 
+            <div class="sidebar-section">
+                <label class="section-label">VISION PIPELINE</label>
+                <div class="pipeline-stack">
+                    <div class="pipeline-step active">
+                        <span class="step-index">01</span>
+                        <span>Camera Feed</span>
+                    </div>
+                    <div class="pipeline-step active">
+                        <span class="step-index">02</span>
+                        <span>Person Detection</span>
+                    </div>
+                    <div class="pipeline-step active">
+                        <span class="step-index">03</span>
+                        <span>Retail Events</span>
+                    </div>
+                    <div class="pipeline-step active">
+                        <span class="step-index">04</span>
+                        <span>Live Insights</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="sidebar-footer">
                 <button id="refresh-btn" class="btn btn-primary">Refresh Dashboard</button>
             </div>
@@ -61,21 +87,41 @@
         <main class="main-content">
             <header class="main-header">
                 <div class="header-left">
-                    <h1 id="store-name">Brigade, Bangalore</h1>
+                    <span class="eyebrow">Realtime Store Operations Console</span>
+                    <h1 id="store-name">Store 1</h1>
                     <p class="store-metadata" id="store-subtext">CCTV Analytics Live Stream</p>
                 </div>
                 <div class="header-right">
+                    <div class="live-chip">
+                        <span class="scan-dot"></span>
+                        AI Vision Online
+                    </div>
                     <div class="time-container">
                         <span id="current-time">10-04-2026</span>
                     </div>
                 </div>
             </header>
 
+            <section class="ops-overview glass">
+                <div class="ops-copy">
+                    <span class="eyebrow">Multi-Camera Journey Tracking</span>
+                    <h2>From raw footage to shopper movement, queue pressure, and zone intent.</h2>
+                    <p>Each event below is generated as a typed retail signal that can be replayed, deduplicated, scored, and queried by the API.</p>
+                </div>
+                <div class="camera-topology" id="camera-topology">
+                    <div class="camera-node entrance">Entry</div>
+                    <div class="camera-path"></div>
+                    <div class="camera-node zone">Zone</div>
+                    <div class="camera-path"></div>
+                    <div class="camera-node billing">Billing</div>
+                </div>
+            </section>
+
             <!-- Metrics / KPI Grid -->
             <section class="kpi-grid">
                 <!-- Unique Visitors -->
                 <div class="kpi-card glass">
-                    <div class="kpi-icon icon-visitors">👤</div>
+                    <div class="kpi-icon icon-visitors">ID</div>
                     <div class="kpi-details">
                         <span class="kpi-title">Unique Visitors</span>
                         <h2 id="kpi-visitors">0</h2>
@@ -85,7 +131,7 @@
 
                 <!-- Active Sessions -->
                 <div class="kpi-card glass">
-                    <div class="kpi-icon icon-active">🟢</div>
+                    <div class="kpi-icon icon-active">ON</div>
                     <div class="kpi-details">
                         <span class="kpi-title">Active Shoppers</span>
                         <h2 id="kpi-active">0</h2>
@@ -95,7 +141,7 @@
 
                 <!-- Conversion Rate -->
                 <div class="kpi-card glass">
-                    <div class="kpi-icon icon-conversion">🛒</div>
+                    <div class="kpi-icon icon-conversion">CV</div>
                     <div class="kpi-details">
                         <span class="kpi-title">Conversion Rate</span>
                         <h2 id="kpi-conversion">0.00%</h2>
@@ -105,7 +151,7 @@
 
                 <!-- Average Dwell Time -->
                 <div class="kpi-card glass">
-                    <div class="kpi-icon icon-dwell">⏱️</div>
+                    <div class="kpi-icon icon-dwell">DW</div>
                     <div class="kpi-details">
                         <span class="kpi-title">Avg Dwell Time</span>
                         <h2 id="kpi-dwell">0s</h2>
@@ -115,7 +161,7 @@
 
                 <!-- Billing Queue Depth -->
                 <div class="kpi-card glass">
-                    <div class="kpi-icon icon-queue">👥</div>
+                    <div class="kpi-icon icon-queue">Q</div>
                     <div class="kpi-details">
                         <span class="kpi-title">Billing Queue Depth</span>
                         <h2 id="kpi-queue">0 / 0</h2>

@@ -43,8 +43,8 @@ Module 5 includes:
 
 - `GET /stores/{id}/funnel`
 - session funnel service and response schemas
-- dataset profile for `ST1008 / Brigade_Bangalore`
-- camera role mapping for the received CCTV files
+- dataset profiles for `ST1008 / Store 1` and `ST1076 / Store 2`
+- camera role mapping for the received CCTV folders
 - tests for empty funnel, staff exclusion, reentry dedupe, drop-off, time windows,
   and billing queue purchase proxy
 
@@ -97,13 +97,28 @@ Run Module 7 tests only:
 .\.venv\Scripts\python.exe -m pytest tests/test_real_video_pipeline.py
 ```
 
-Run the Brigade CCTV pipeline:
+Run the Store 1 CCTV pipeline:
 
 ```powershell
 $env:DETECTOR_BACKEND='opencv_motion'
 $env:PIPELINE_FRAME_STRIDE='30'
 $env:PIPELINE_MAX_FRAMES_PER_CAMERA='80'
-.\.venv\Scripts\python.exe -m pipeline.run dataset --dataset-dir "C:\Users\hp\Downloads\CCTV Footage-20260529T160731Z-3-00144614ea\CCTV Footage" --output "artifacts\events\brigade_events.jsonl"
+.\.venv\Scripts\python.exe -m pipeline.run dataset --profile store1 --dataset-dir "C:\Users\hp\Downloads\Store 1-20260602T101818Z-3-001ec38db8\Store 1" --output "artifacts\events\store1_events.jsonl"
+```
+
+Run the Store 2 CCTV pipeline:
+
+```powershell
+$env:DETECTOR_BACKEND='opencv_motion'
+$env:PIPELINE_FRAME_STRIDE='30'
+$env:PIPELINE_MAX_FRAMES_PER_CAMERA='80'
+.\.venv\Scripts\python.exe -m pipeline.run dataset --profile store2 --dataset-dir "C:\Users\hp\Downloads\Store 2-20260602T101819Z-3-001099f208\Store 2" --output "artifacts\events\store2_events.jsonl"
+```
+
+Ingest the provided Store 2 sample JSONL through the API:
+
+```powershell
+.\.venv\Scripts\python.exe -m pipeline.run ingest --file "C:\Users\hp\Downloads\sample_eventsbe42122.jsonl" --api-url "http://127.0.0.1:8000"
 ```
 
 Install optional CV/model dependencies locally when running the real CCTV pipeline:

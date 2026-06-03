@@ -1,0 +1,71 @@
+
+Test it in this order from VS Code terminal.
+
+1. Run Unit Tests
+
+.\.venv\Scripts\python.exe -m pytest
+Expected: all tests pass.
+
+For only the new dataset changes:
+
+.\.venv\Scripts\python.exe -m pytest tests\test_dataset_config.py tests\test_jsonl_ingestion.py tests\test_real_video_pipeline.py
+2. Start Backend
+
+Make sure Docker Desktop is running, then:
+
+docker compose up -d postgres redis
+.\.venv\Scripts\python.exe -m alembic upgrade head
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+Open:
+
+http://127.0.0.1:8000/health
+Expected JSON should show database connected.
+
+3. Ingest Store 2 Sample JSONL
+
+Keep the API running. Open another terminal:
+
+.\.venv\Scripts\python.exe -m pipeline.run ingest `
+  --file "C:\Users\hp\Downloads\sample_eventsbe42122.jsonl" `
+  --api-url "http://127.0.0.1:8000"
+Then test Store 2 endpoints:
+
+http://127.0.0.1:8000/stores/00000000-0000-4000-8000-000000001076/metrics
+http://127.0.0.1:8000/stores/00000000-0000-4000-8000-000000001076/funnel
+http://127.0.0.1:8000/stores/00000000-0000-4000-8000-000000001076/anomalies
+4. Run CCTV Pipeline
+
+Store 1:
+
+$env:DETECTOR_BACKEND='opencv_motion'
+$env:PIPELINE_FRAME_STRIDE='30'
+$env:PIPELINE_MAX_FRAMES_PER_CAMERA='80'
+
+.\.venv\Scripts\python.exe -m pipeline.run dataset `
+  --profile store1 `
+  --dataset-dir "C:\Users\hp\Downloads\Store 1-20260602T101818Z-3-001ec38db8\Store 1" `
+  --output "artifacts\events\store1_events.jsonl"
+Store 2:
+
+.\.venv\Scripts\python.exe -m pipeline.run dataset `
+  --profile store2 `
+  --dataset-dir "C:\Users\hp\Downloads\Store 2-20260602T101819Z-3-001099f208\Store 2" `
+  --output "artifacts\events\store2_events.jsonl"
+Expected: JSONL files are created in artifacts/events/.
+
+5. Ingest Generated CCTV Events
+
+.\.venv\Scripts\python.exe -m pipeline.run ingest `
+  --file "artifacts\events\store1_events.jsonl" `
+  --api-url "http://127.0.0.1:8000"
+
+.\.venv\Scripts\python.exe -m pipeline.run ingest `
+  --file "artifacts\events\store2_events.jsonl" `
+  --api-url "http://127.0.0.1:8000"
+6. Open Dashboard
+
+http://127.0.0.1:8000/
+Select:
+
+ST1008 - Store 1
+ST1076 - Store 2
